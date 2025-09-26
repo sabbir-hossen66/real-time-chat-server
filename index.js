@@ -1,6 +1,6 @@
-import express from "express";
-import axios from "axios";
-import dotenv from "dotenv";
+const express = require("express");
+const axios = require("axios");
+const dotenv = require("dotenv");
 
 dotenv.config();
 const app = express();
@@ -12,27 +12,43 @@ const CUSTOMER_SECRET = process.env.CUSTOMER_SECRET;
 const ORG_NAME = process.env.ORG_NAME;   
 const APP_NAME = process.env.APP_NAME;   
 
+console.log("ID:", process.env.CUSTOMER_ID);
+console.log("SECRET:", process.env.CUSTOMER_SECRET);
+console.log("ORG:", process.env.ORG_NAME);
+console.log("APP:", process.env.APP_NAME);
+
 // Get Access Token (for REST API calls)
 async function getAppToken() {
+  console.log(':sdf' );
   const auth = Buffer.from(`${CUSTOMER_ID}:${CUSTOMER_SECRET}`).toString("base64");
-  const res = await axios.post(
-    "https://a1.easemob.com/token",
-    { grant_type: "client_credentials" },
-    { headers: { Authorization: `Basic ${auth}` } }
-  );
-  return res.data.access_token;
+  console.log("auth:", auth);
+
+  try {
+    const res = await axios.post(
+      `https://a1.easemob.com/${ORG_NAME}/${APP_NAME}/token`,
+      { grant_type: "client_credentials",
+        client_id: CUSTOMER_ID,
+        client_secret: CUSTOMER_SECRET
+       },
+      { headers: { Authorization: `Basic ${auth}` } }
+    );
+    return res.data.access_token;
+  } catch (error) {
+    console.error("Token Request Error:", error.response?.data || error.message);
+    throw error;
+  }
 }
 
 // token
-app.post("/token", async (req, res) => {
-  try {
-    const token = await getAppToken();
-    res.json({ access_token: token });
-  } catch (err) {
-    console.error("Error generating token:", err.response?.data || err.message);
-    res.status(500).json({ error: "Failed to generate token" });
-  }
-});
+// app.post("/token", async (req, res) => {
+//   try {
+//     const token = await getAppToken();
+//     res.json({ access_token: token });
+//   } catch (err) {
+//     console.error("Error generating token:", err.response?.data || err.message);
+//     res.status(500).json({ error: "Failed to generate token" });
+//   }
+// });
 
 
 // Register a new user

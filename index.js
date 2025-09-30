@@ -3,6 +3,12 @@ const express = require("express");
 const app = express();
 
 const PORT = process.env.PORT || 8080;
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*'); // সব domain থেকে allow করবে
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+    res.header('Access-Control-Allow-Headers', 'Content-Type');
+    next();
+});
 // App credentials
 const appId = "be2ac313cccd40c7a0c3ba62d6269025";
 const appCertificate = "d3e285a7b4784614a458f939534de279";
